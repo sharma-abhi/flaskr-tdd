@@ -2,7 +2,7 @@ import unittest
 import os
 import tempfile
 import app
-
+import json
 
 class BasicTestCase(unittest.TestCase):
 
@@ -76,13 +76,18 @@ class FlaskrTestCase(unittest.TestCase):
 			app.app.config['PASSWORD']
 			)
 		rv = self.app.post('/add', data=dict(
-			title='Hello',
+			title='<Hello>',
 			text='<strong>HTML</strong> allowed here'
 			), follow_redirects=True)
 		assert b'No entries yet. Add some!' not in rv.data
-		print(rv.data)
 		assert b'&lt;Hello&gt;' in rv.data
 		assert b'<strong>HTML</strong> allowed here' in rv.data
+
+	def test_delete_message(self):
+		"""Ensure the messages are being deleted"""
+		rv = self.app.get('/delete/1')
+		data  = json.loads((rv.data).decode('utf-8'))
+		self.assertEqual(data['status'], 1)
 
 if __name__ == '__main__':
 	unittest.main()
